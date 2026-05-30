@@ -142,6 +142,26 @@ header p {
     font-weight: bold;
 }
 
+code {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.08);
+    color: #c0d7ff;
+    padding: 0.18em 0.35em;
+    border-radius: 5px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+pre {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 18px;
+    border-radius: 12px;
+    overflow-x: auto;
+    color: #dff3ff;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
 .card-body li:hover {
     color: #e6eef8;
 }
@@ -178,19 +198,53 @@ footer p {
 }
 
 @media (max-width: 768px) {
+    body {
+        padding: 18px 14px;
+        align-items: flex-start;
+    }
+
+    .container {
+        margin: 0 auto;
+    }
+
+    header {
+        padding: 40px 22px;
+    }
+
     header h1 {
         font-size: 2em;
     }
 
+    header p {
+        font-size: 1rem;
+    }
+
     .content {
-        padding: 40px 25px;
+        padding: 35px 22px;
+    }
+
+    .intro {
+        margin-bottom: 35px;
+    }
+
+    .intro h2 {
+        font-size: 1.6em;
     }
 
     .cards-container {
         grid-template-columns: 1fr;
     }
 
-    body {
-        padding: 18px;
+    .card-header {
+        padding: 22px 18px;
+    }
+
+    .card-body {
+        padding: 22px 18px;
+    }
+
+    footer {
+        padding: 24px 20px;
     }
 }
+
