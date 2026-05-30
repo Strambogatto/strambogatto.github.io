@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida all'Allocazione Dinamica in C</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💾 Guida Completa all'Allocazione Dinamica</h1>
+            <p>Gestisci la memoria con malloc, calloc e realloc</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>Cosa è l'Allocazione Dinamica?</h2>
+                <p>L'allocazione dinamica consente di richiedere memoria a runtime. A differenza degli array statici con dimensione fissa, puoi allocare esattamente la quantità di memoria necessaria durante l'esecuzione del programma.</p>
+                
+                <h3 style="color: var(--accent); margin-top: 30px; margin-bottom: 15px;">Perché ti serve davvero?</h3>
+                <p style="text-align: left; max-width: 800px; margin: 0 auto; line-height: 1.8; color: var(--muted);">
+                    Immagina di scrivere un programma che carica una foto da internet. Non sai quanto pesa finché non la scarichi! O un programma che legge linee di testo da un file - ogni linea potrebbe essere lunga diversa. Con gli array statici dovresti indovinare la dimensione massima e allocare sempre quella, sprechi, sprechi, sprechi. Con la memoria dinamica chiedi esattamente quello che ti serve. Inoltre, ci sono strutture dati (liste, alberi, grafi) che non si possono realizzare senza memoria dinamica. Senza questi concetti, il tuo C rimane limitato a programmi molto semplici.
+                </p>
+            </div>
+
+            <div class="cards-container">
+                <!-- Card 1 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🎯 Il Problema: Array Statici</h3>
+                        <p>Perché gli array normali non bastano</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Il limite degli array</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            In C, quando dichiari un array, devi specificare la dimensione a tempo di compilazione (quando scrivi il codice, non quando lo esegui):
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int numeri[100];  // OK, dimensione fissa<br>
+int n = 150;<br>
+int altro[n];     // ERRORE! n non è una costante
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Lo spreco di memoria</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Se scrivi un programma che legge i nomi degli studenti di una classe, quanti ne metti? 30? 50? 100? Se scegli 100 ma in una classe ci sono solo 25 studenti, stai sprecando memoria per 75 studenti che non esistono!
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+#define MAX_STUDENTI 100<br>
+char nomi[MAX_STUDENTI][50];  // Spreca memoria per studenti che non esistono<br>
+<br>
+// Meglio:<br>
+int num_studenti = 25;  // Legguto dal file<br>
+char **nomi = malloc(num_studenti * sizeof(char*));
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">E se non sai la dimensione?</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Se scarichi una foto da internet, non sai quanti byte avrà finché non la scarichi completamente. Con array statici è impossibile!
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🎪 malloc() - Allocare Memoria</h3>
+                        <p>Richiedere memoria al sistema operativo</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Come funziona malloc</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            malloc() chiede al sistema operativo un blocco di memoria di dimensione che tu specifichi. Il sistema operativo trova spazio libero e ritorna un puntatore al primo byte di quel blocco. Il nome "malloc" sta per "memory allocation".
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+void *malloc(size_t size);  // Ritorna void*, puoi assegnarlo a qualsiasi puntatore
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Allocare un array di interi</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Quanta memoria serve per 50 interi? In C, sizeof(int) ti dice quanti byte occupa un int (solitamente 4):
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int num_elementi = 50;<br>
+int *arr = (int *)malloc(num_elementi * sizeof(int));<br>
+// Alloca 50 * 4 = 200 byte
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">IMPORTANTE: Controllare se malloc fallisce</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Se il sistema operativo non ha abbastanza memoria libera (es. il computer sta per scoppiare di processi aperti), malloc ritorna NULL. Dereferenziare NULL causa un crash. Sempre, SEMPRE controllare!
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *arr = (int *)malloc(50 * sizeof(int));<br>
+<br>
+if (arr == NULL) {<br>
+&nbsp;&nbsp;printf("Errore: memoria insufficiente!\n");<br>
+&nbsp;&nbsp;return 1;  // Esci dal programma<br>
+}<br>
+<br>
+// Ora puoi usare arr in sicurezza
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Cast a (int *)</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            malloc ritorna void* (puntatore generico). Per assegnarlo a un puntatore specifico, devi fare il cast. In C questo è facoltativo ma buona pratica.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🧹 calloc() - Allocare e Azzerare</h3>
+                        <p>Come malloc, ma inizializza a zero</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Differenza tra malloc e calloc</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            calloc fa esattamente quello che fa malloc, ma con un extra: azzera tutti i byte a 0. malloc non inizializza la memoria, quindi contiene spazzatura (valori random da prima).
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *arr1 = (int *)malloc(10 * sizeof(int));  // Contiene spazzatura<br>
+int *arr2 = (int *)calloc(10, sizeof(int));   // Tutti zeri
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Sintassi di calloc</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Nota la differenza: calloc prende due parametri (numero di elementi e dimensione di ogni elemento), mentre malloc ne prende uno (numero totale di byte).
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+malloc(50 * sizeof(int));      // 50 interi<br>
+calloc(50, sizeof(int));       // 50 interi (più leggibile)<br>
+calloc(10, sizeof(double));    // 10 double
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Quando usare calloc</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Usa calloc quando vuoi che la memoria sia inizializzata a zero. È utile per array di numeri (0 è un valore sicuro) o per strutture dati che dipendono dai valori iniziali.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🔄 realloc() - Ridimensionare</h3>
+                        <p>Cambiare la dimensione di memoria allocata</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Il caso d'uso: crescita dinamica</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Immagina di leggere numeri da un file uno per uno. All'inizio pensi di averne 10, poi 20, poi 50... Con realloc puoi ingrandire l'array man mano che necessario.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *arr = (int *)malloc(10 * sizeof(int));<br>
+// Dopo aver riempito i 10 elementi, ne servono altri:<br>
+arr = (int *)realloc(arr, 20 * sizeof(int));<br>
+// Ora arr ha spazio per 20 interi
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Come funziona realloc</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            realloc fa tre cose:<br>
+                            1. Chiede al sistema operativo un blocco più grande<br>
+                            2. Copia i dati vecchi nel nuovo blocco<br>
+                            3. Libera il blocco vecchio<br>
+                            Il puntatore potrebbe cambiare! Ecco perché DEVI assegnare il risultato:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+// SBAGLIATO:<br>
+realloc(arr, 20 * sizeof(int));  // Perdi l'indirizzo nuovo!<br>
+<br>
+// CORRETTO:<br>
+arr = realloc(arr, 20 * sizeof(int));<br>
+if (arr == NULL) {  // Sempre controllare!<br>
+&nbsp;&nbsp;printf("Errore in realloc!\n");<br>
+&nbsp;&nbsp;// Ma qual è il vecchio puntatore? Perso!<br>
+}
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Attenzione al fallimento</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Se realloc fallisce, ritorna NULL ma NON libera il blocco vecchio. Per questo, se fai "arr = realloc(...)" e realloc fallisce, perdi il vecchio puntatore. Una strategia migliore:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace;">
+int *temp = realloc(arr, 20 * sizeof(int));<br>
+if (temp == NULL) {<br>
+&nbsp;&nbsp;printf("Errore!\n");  // arr è ancora valido<br>
+} else {<br>
+&nbsp;&nbsp;arr = temp;  // Solo ora assegniamo<br>
+}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🗑️ free() - Liberare Memoria</h3>
+                        <p>Ritornare memoria al sistema operativo</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Memoria allocata = memoria da liberare</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Ogni volta che usi malloc/calloc/realloc, devi OBBLIGATORIAMENTE liberare la memoria quando finisci. Se non lo fai, quella memoria rimane occupata per tutta l'esecuzione del programma. È quello che si chiama "memory leak".
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *arr = (int *)malloc(100 * sizeof(int));<br>
+// Usa arr...<br>
+free(arr);  // Libera la memoria<br>
+arr = NULL; // Buona pratica: evita puntatori selvatici
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Il pericolo: doppia liberazione</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            ERRORE COMUNE: liberare la stessa memoria due volte causa crash!
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *arr = (int *)malloc(10 * sizeof(int));<br>
+free(arr);<br>
+free(arr);  // CRASH! Doppia liberazione
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Ecco perché è buona pratica mettere NULL dopo free():
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+free(arr);<br>
+arr = NULL;  // Se per errore chiamiamo free(arr) di nuovo, non succede nulla<br>
+free(arr);   // OK, freeing NULL non fa nulla
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📊 Array Dinamici: Esempio Pratico</h3>
+                        <p>Mettere tutto insieme</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Scenario: leggere numeri da tastiera</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            L'utente ti dice "dammi 5 numeri", poi li digita. Dopo, ti dice "dammi altri 3 numeri". Come li memorizzi? Con un array dinamico che cresce!
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *numeri = NULL;<br>
+int capacita = 0;<br>
+int lunghezza = 0;<br>
+<br>
+while (1) {<br>
+&nbsp;&nbsp;int n;<br>
+&nbsp;&nbsp;printf("Inserisci numero (0 per finire): ");<br>
+&nbsp;&nbsp;scanf("%d", &n);<br>
+&nbsp;&nbsp;if (n == 0) break;<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;// Se l'array è pieno, raddoppia la capacità<br>
+&nbsp;&nbsp;if (lunghezza == capacita) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;capacita = (capacita == 0) ? 10 : capacita * 2;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;numeri = realloc(numeri, capacita * sizeof(int));<br>
+&nbsp;&nbsp;&nbsp;&nbsp;if (numeri == NULL) {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;printf("Errore allocazione!\n");<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return 1;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;numeri[lunghezza++] = n;<br>
+}<br>
+<br>
+// Stampa<br>
+for (int i = 0; i < lunghezza; i++)<br>
+&nbsp;&nbsp;printf("%d ", numeri[i]);<br>
+<br>
+// Libera<br>
+free(numeri);<br>
+numeri = NULL;
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🔗 Liste Collegate: Strutture Dinamiche</h3>
+                        <p>Dove la memoria dinamica brilla davvero</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Il limite degli array</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Gli array dinamici sono flessibili in dimensione, ma non in posizione: inserire o rimuovere un elemento dal mezzo è costoso (devi spostare tutti gli altri). Le liste collegate risolvono questo!
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Cos'è una lista collegata?</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Una lista collegata è una catena di "nodi". Ogni nodo contiene un dato e un puntatore al nodo seguente. Puoi inserire/rimuovere nodi in O(1) se sai dov'è il punto di inserimento.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+struct nodo {<br>
+&nbsp;&nbsp;int dato;<br>
+&nbsp;&nbsp;struct nodo *prossimo;<br>
+};<br>
+<br>
+// Creare il primo nodo<br>
+struct nodo *testa = (struct nodo *)malloc(sizeof(struct nodo));<br>
+testa->dato = 10;<br>
+testa->prossimo = NULL;
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Inserire un elemento</h4>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+struct nodo *nuovo = (struct nodo *)malloc(sizeof(struct nodo));<br>
+nuovo->dato = 20;<br>
+nuovo->prossimo = testa->prossimo;  // Inserisci tra testa e il prossimo<br>
+testa->prossimo = nuovo;
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Traversare la lista</h4>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+struct nodo *corrente = testa;<br>
+while (corrente != NULL) {<br>
+&nbsp;&nbsp;printf("%d ", corrente->dato);<br>
+&nbsp;&nbsp;corrente = corrente->prossimo;<br>
+}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 8 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>⚠️ Memory Leaks e Debugging</h3>
+                        <p>Come evitare i comuni errori</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Cos'è un memory leak?</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Un memory leak è memoria allocata che non viene mai liberata. Se il tuo programma alloca memoria in un loop senza liberarla, consuma sempre più RAM finché il computer non va in crash.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+// MEMORY LEAK!<br>
+for (int i = 0; i < 1000000; i++) {<br>
+&nbsp;&nbsp;int *arr = (int *)malloc(1000);<br>
+&nbsp;&nbsp;// Usi arr...<br>
+&nbsp;&nbsp;// Dimentichi free(arr);<br>
+}<br>
+// Dopo il loop, 1 miliardo di byte sono persi!
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Regole d'oro</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            1. Ogni malloc/calloc deve avere un corrispondente free<br>
+                            2. Controlla sempre se malloc ritorna NULL<br>
+                            3. Non libera memoria che non hai allocato<br>
+                            4. Non libera la stessa memoria due volte<br>
+                            5. Non usare memoria dopo aver chiamato free su di essa<br>
+                            6. Se liberi una struttura con puntatori, libera prima i campi
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Strumento: valgrind</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Su Linux, puoi usare valgrind per trovare memory leaks:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace;">
+valgrind ./mio_programma
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 9 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>💪 Quando usi questa roba DAVVERO</h3>
+                        <p>Esempi di programmi veri</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">1. Browser che scarica file</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Non sai quanto grande è il file finché lo scarichi. Allochi blocchi di memoria dinamicamente man mano che scarichi.
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">2. Editor di testo</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            L'utente aggiunge/rimuove caratteri. Con array dinamico, raddoppi la memoria quando necessario.
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">3. Social network</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Gli utenti seguono altri utenti. È una lista collegata (grafo). Non puoi saperla in anticipo!
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">4. Database</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Milioni di record. Allocazione dinamica ovunque.
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">5. Videogame</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            I nemici vengono creati/distrutti dinamicamente. Gli effetti grafici, le particelle... tutto è memoria dinamica.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>📚 Strambogatto's C Programming Guide | Allocazione Dinamica | <a href="b.html" style="color: var(--accent); text-decoration: none;">← Torna alla guida</a></p>
+        </footer>
+    </div>
+</body>
+</html>

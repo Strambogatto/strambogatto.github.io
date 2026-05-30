@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guida ai Puntatori in C</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📌 Guida Completa ai Puntatori in C</h1>
+            <p>Scopri il potere dei puntatori nella programmazione C</p>
+        </header>
+
+        <div class="content">
+            <div class="intro">
+                <h2>Cosa sono i Puntatori?</h2>
+                <p>Un puntatore è una variabile che memorizza l'indirizzo di memoria di un'altra variabile. È uno dei concetti fondamentali del C e permette di manipolare la memoria direttamente.</p>
+                
+                <h3 style="color: var(--accent); margin-top: 30px; margin-bottom: 15px;">Perché sono importanti?</h3>
+                <p style="text-align: left; max-width: 800px; margin: 0 auto; line-height: 1.8; color: var(--muted);">
+                    I puntatori sono la base di molte cose in C: passare parametri per modificarli dentro funzioni, creare strutture dati dinamiche (liste, alberi, grafi), lavorare con la memoria in modo flessibile. Senza puntatori, il C non sarebbe così potente. Probabilmente pensi "ma perché mi serve?" - bene, immagina di voler scrivere una funzione che modifichi una variabile passata come parametro. In molti linguaggi è semplice, ma in C devi usare un puntatore per farlo. Oppure immagina di voler creare un array ma non sai quanto grande servirà fino a runtime - qui entrano in gioco i puntatori e la memoria dinamica!</p>
+            </div>
+
+            <div class="cards-container">
+                <!-- Card 1 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🎯 Operatori Fondamentali: & e *</h3>
+                        <p>I due operatori che devi capire per primi</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">L'operatore & (indirizzo)</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            L'operatore & significa "dammi l'indirizzo di memoria di questa variabile". Pensa alla memoria del computer come a una lunga serie di scatole numerate. Ogni variabile occupa una o più scatole. L'operatore & ti dice quale numero ha la prima scatola di quella variabile.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int x = 5;<br>
+int *ptr = &x;  // ptr contiene l'indirizzo di x
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Se x si trova alla scatola numero 1000, allora &x ritorna 1000. Questo numero può essere immagazzinato in un puntatore.
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">L'operatore * (dereferenziazione)</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            L'operatore * fa l'opposto: dato un puntatore (un indirizzo), ti ritorna il valore contenuto a quell'indirizzo. È come dire "vai alla scatola numero 1000 e dimmi che valore contiene".
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int x = 5;<br>
+int *ptr = &x;<br>
+printf("%d", *ptr);  // Stampa 5, il valore di x
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Attenzione: * ha significati diversi in contesti diversi! In "int *ptr" significa "dichiarazione di puntatore", mentre in "*ptr = 10" significa "dereferenzia ptr e assegna 10 al valore puntato".
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🔗 Dichiarazione e Inizializzazione</h3>
+                        <p>Come creare e usare i puntatori correttamente</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Dichiarare un puntatore</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Quando dichiari un puntatore, devi specificare il tipo di variabile che il puntatore punterà. Un puntatore a int è diverso da un puntatore a char.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int *ptr_intero;      // Puntatore a int<br>
+char *ptr_carattere;   // Puntatore a char<br>
+double *ptr_decimale; // Puntatore a double
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Il tipo determina come il compilatore interpreta i dati e quanti byte saltare quando fai aritmetica sui puntatori (che vedremo dopo).
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Inizializzare correttamente</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            IMPORTANTE: devi sempre inizializzare un puntatore prima di usarlo! Se non lo fai, il puntatore contiene un indirizzo casuale (un puntatore "selvatico") e dereferenziarlo causa un crash.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int x = 42;<br>
+int *ptr = &x;  // Corretto: ptr punta a x<br>
+<br>
+int *ptr;    // SBAGLIATO: puntatore non inizializzato!<br>
+// *ptr = 5;  // CRASH! ptr contiene spazzatura
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Una buona pratica è inizializzare a NULL se non sai ancora a cosa dovrebbe puntare:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace;">
+int *ptr = NULL;  // Sicuro, poi lo assegniamo dopo
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>🎪 Puntatori a Puntatori</h3>
+                        <p>Quando un puntatore punta a un altro puntatore</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Cos'è un puntatore a puntatore?</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Se un puntatore contiene l'indirizzo di una variabile, allora un puntatore a puntatore contiene l'indirizzo di un puntatore! È come avere una catena di indirezioni.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int x = 42;<br>
+int *ptr = &x;      // ptr punta a x<br>
+int **pptr = &ptr;  // pptr punta a ptr
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Come accedere ai valori</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Per accedere al valore originale attraverso un puntatore a puntatore, usi * due volte:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+printf("%d", *ptr);   // Stampa 42 (il valore di x)<br>
+printf("%d", **pptr); // Stampa 42 (il valore di x attraverso ptr)<br>
+printf("%p", ptr);    // Stampa l'indirizzo di x<br>
+printf("%p", pptr);   // Stampa l'indirizzo di ptr
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Quando serve?</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            I puntatori a puntatori sono utili quando vuoi modificare un puntatore all'interno di una funzione. Se passi solo un puntatore, modifiche solo cosa punta, non il puntatore stesso. Ma se passi un puntatore a puntatore, puoi cambiare il puntatore stesso.
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+void cambia(int **pp, int valore) {<br>
+&nbsp;&nbsp;*pp = &valore;  // Cambia cosa punta pp<br>
+}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>📊 Puntatori e Array</h3>
+                        <p>Una relazione fondamentale che non immaginavi</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Array decay: gli array diventano puntatori</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Ecco un segreto che molti non sanno: in C, il nome di un array (senza le parentesi quadre) è automaticamente convertito in un puntatore al primo elemento! Questo è chiamato "array decay".
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int arr[5] = {1, 2, 3, 4, 5};<br>
+int *ptr = arr;  // arr si trasforma in puntatore al primo elemento<br>
+// È equivalente a: int *ptr = &arr[0];
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Accedere agli elementi</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Sia con la notazione array che con la notazione puntatore, accedi agli stessi elementi:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int arr[5] = {1, 2, 3, 4, 5};<br>
+int *ptr = arr;<br>
+<br>
+printf("%d", arr[2]);     // Stampa 3<br>
+printf("%d", ptr[2]);     // Stampa 3<br>
+printf("%d", *(ptr + 2)); // Stampa 3<br>
+printf("%d", *(arr + 2)); // Stampa 3
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Tutte e quattro sono equivalenti! In realtà, arr[i] è semplicemente zucchero sintattico per *(arr + i).
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Perché è importante?</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Questo è il motivo per cui gli array si comportano in un certo modo quando li passi alle funzioni. Quando passi un array a una funzione, in realtà passi un puntatore, non l'intero array! Per questo il compilatore non sa la dimensione dell'array dentro la funzione e tu devi passarla separatamente come parametro.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>➕ Aritmetica dei Puntatori</h3>
+                        <p>Come navigare la memoria con i puntatori</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Incremento e decremento</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Puoi incrementare e decrementare puntatori come normali variabili, ma c'è una differenza: il computer automaticamente sposta di "una unità del tipo", non di un byte!
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int arr[5] = {10, 20, 30, 40, 50};<br>
+int *ptr = arr;    // ptr punta a arr[0] (indirizzo 1000)<br>
+ptr++;             // ptr ora punta a arr[1] (indirizzo 1004, cioè 1000 + 4)<br>
+ptr++;             // ptr ora punta a arr[2] (indirizzo 1008, cioè 1004 + 4)<br>
+printf("%d", *ptr); // Stampa 30
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Nota: ogni int è 4 byte, quindi quando incrementi di 1, in realtà avanzi di 4 byte! Se fosse un puntatore a char (1 byte), avanzerebbe di 1 byte.
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Addizione e sottrazione</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Puoi aggiungere numeri ai puntatori per saltare multipli di elementi:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+int arr[5] = {10, 20, 30, 40, 50};<br>
+int *ptr = arr;<br>
+printf("%d", *(ptr + 3)); // Stampa 40 (arr[3])<br>
+printf("%d", *(ptr + 4)); // Stampa 50 (arr[4])<br>
+<br>
+ptr = ptr + 2;           // ptr ora punta a arr[2]<br>
+printf("%d", *ptr);       // Stampa 30
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Differenza tra puntatori</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Puoi anche sottrarre due puntatori per sapere quanti elementi distano:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace;">
+int arr[5] = {10, 20, 30, 40, 50};<br>
+int *ptr1 = arr;<br>
+int *ptr2 = arr + 3;<br>
+printf("%d", ptr2 - ptr1); // Stampa 3 (distanza di 3 elementi)
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>⚠️ Il Vero Motivo dei Puntatori</h3>
+                        <p>Casi d'uso pratici che ti convinceranno</p>
+                    </div>
+                    <div class="card-body">
+                        <h4 style="color: var(--accent); margin-bottom: 15px;">Caso 1: Modificare una variabile in una funzione</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Senza puntatori, i parametri di funzione sono copie. Se modifichi il parametro, non modifichi l'originale:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+void incrementa(int x) {<br>
+&nbsp;&nbsp;x++;  // Incrementa la COPIA, non l'originale<br>
+}<br>
+<br>
+int main() {<br>
+&nbsp;&nbsp;int num = 5;<br>
+&nbsp;&nbsp;incrementa(num);<br>
+&nbsp;&nbsp;printf("%d", num); // Stampa 5, non 6!<br>
+}
+                        </p>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Con i puntatori, puoi modificare l'originale:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+void incrementa(int *x) {<br>
+&nbsp;&nbsp;(*x)++;  // Incrementa il valore puntato<br>
+}<br>
+<br>
+int main() {<br>
+&nbsp;&nbsp;int num = 5;<br>
+&nbsp;&nbsp;incrementa(&num);<br>
+&nbsp;&nbsp;printf("%d", num); // Stampa 6!<br>
+}
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Caso 2: Ritornare più di un valore</h4>
+                        <p style="color: var(--muted); line-height: 1.7; margin-bottom: 15px;">
+                            Una funzione non può ritornare più di un valore direttamente, ma con puntatori puoi modificare più variabili:
+                        </p>
+                        <p style="background: rgba(79, 158, 243, 0.1); padding: 12px; border-left: 3px solid var(--accent); border-radius: 4px; color: var(--muted); font-family: 'Courier New', monospace; margin-bottom: 15px;">
+void dividi(int a, int b, int *quoziente, int *resto) {<br>
+&nbsp;&nbsp;*quoziente = a / b;<br>
+&nbsp;&nbsp;*resto = a % b;<br>
+}<br>
+<br>
+int main() {<br>
+&nbsp;&nbsp;int q, r;<br>
+&nbsp;&nbsp;dividi(17, 5, &q, &r);<br>
+&nbsp;&nbsp;printf("Quoziente: %d, Resto: %d", q, r);<br>
+}
+                        </p>
+
+                        <h4 style="color: var(--accent); margin-bottom: 15px; margin-top: 20px;">Caso 3: Evitare copie di dati grandi</h4>
+                        <p style="color: var(--muted); line-height: 1.7;">
+                            Se vuoi passare un array grande a una funzione, non vuoi copiarlo tutto in memoria. Passi solo un puntatore al primo elemento, che è molto veloce!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>📚 Strambogatto's C Programming Guide | Impara i Puntatori | <a href="b.html" style="color: var(--accent); text-decoration: none;">← Torna alla guida</a></p>
+        </footer>
+    </div>
+</body>
+</html>
